@@ -102,4 +102,6 @@ def comm(
 
 
 def main():
-    typer.run(comm)
+    app = typer.Typer(add_completion=False)
+    app.command()(comm)
+    app()
