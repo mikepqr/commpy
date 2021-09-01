@@ -1,85 +1,47 @@
-import sys
+import itertools
+from collections.abc import Iterable
 from pathlib import Path
+from typing import Callable
 
 import typer
 
 
-class Merger:
-    def __init__(
-        self,
-        lines1,
-        lines2,
-        hide1: bool = False,
-        hide2: bool = False,
-        hide3: bool = False,
-        ignorecase: bool = False,
-    ):
-        self.lines1, self.lines2 = lines1, lines2
-        self.hide1, self.hide2, self.hide3 = hide1, hide2, hide3
-        if ignorecase:
-            raise NotImplementedError
+def comm(seq1: Iterable, seq2: Iterable, comptrans: Callable = lambda s: s):
+    it1, it2 = iter(seq1), iter(seq2)
+    d1 = next(it1)
+    d2 = next(it2)
 
-    def printcol1(self, s):
-        if self.hide1:
-            return
+    while True:
+        d1trans, d2trans = comptrans(d1), comptrans(d2)
+        if d1trans == d2trans:
+            yield (d1, 3)
+            try:
+                d1 = next(it1)
+            except StopIteration:
+                yield from zip(it2, itertools.repeat(2))
+                break
+            try:
+                d2 = next(it2)
+            except StopIteration:
+                yield from zip(it1, itertools.repeat(1))
+                break
+        elif d1trans < d2trans:
+            yield (d1, 1)
+            try:
+                d1 = next(it1)
+            except StopIteration:
+                yield from zip(it2, itertools.repeat(2))
+                break
         else:
-            print(s)
-
-    def printcol2(self, s):
-        if self.hide2:
-            return
-        elif self.hide1:
-            print(s)
-        else:
-            print(f"\t{s}")
-
-    def printcol3(self, s):
-        if self.hide3:
-            return
-        elif self.hide1 and self.hide2:
-            print(s)
-        elif self.hide1 or self.hide2:
-            print(f"\t{s}")
-        else:
-            print(f"\t\t{s}")
-
-    def next_maybe_flush(self, it1, it2, flusher=print):
-        try:
-            return next(it1).strip()
-        except StopIteration:
-            self.flush(it2, flusher=flusher)
-
-    def flush(self, it, flusher=print):
-        for item in it:
-            flusher(item)
-        sys.exit(0)
-
-    def merge(self):
-        d1 = self.next_maybe_flush(self.lines1, self.lines2)
-        d2 = self.next_maybe_flush(self.lines2, self.lines1)
-
-        while True:
-            if d1 == d2:
-                self.printcol3(d1)
-                d1 = self.next_maybe_flush(
-                    self.lines1, self.lines2, flusher=self.printcol2
-                )
-                d2 = self.next_maybe_flush(
-                    self.lines2, self.lines1, flusher=self.printcol1
-                )
-            elif d1 < d2:
-                self.printcol1(d1)
-                d1 = self.next_maybe_flush(
-                    self.lines1, self.lines2, flusher=self.printcol2
-                )
-            else:
-                self.printcol2(d2)
-                d2 = self.next_maybe_flush(
-                    self.lines2, self.lines1, flusher=self.printcol1
-                )
+            yield (d2, 2)
+            try:
+                d2 = next(it2)
+            except StopIteration:
+                yield from zip(it1, itertools.repeat(1))
+                break
 
 
-def comm(
+def cli(
     file1: Path,
     file2: Path,
     hide1: bool = typer.Option(False, "-1", help="Suppress printing of column 1"),
@@ -88,20 +50,41 @@ def comm(
     ignorecase: bool = typer.Option(
         False, "-i", help="Case insensitive comparison of lines (not implemented)"
     ),
-):
+) -> None:
+    def printcol1(s: str) -> None:
+        if hide1:
+            return
+        else:
+            print(s, end="")
+
+    def printcol2(s: str) -> None:
+        if hide2:
+            return
+        elif hide1:
+            print(s, end="")
+        else:
+            print(f"\t{s}", end="")
+
+    def printcol3(s: str) -> None:
+        if hide3:
+            return
+        elif hide1 and hide2:
+            print(s)
+        elif hide1 or hide2:
+            print(f"\t{s}", end="")
+        else:
+            print(f"\t\t{s}", end="")
+
+    prints = {1: printcol1, 2: printcol2, 3: printcol3}
+
+    comptrans = (lambda s: s.lower()) if ignorecase else (lambda s: s)
+
     with open(file1) as lines1, open(file2) as lines2:
-        m = Merger(
-            lines1,
-            lines2,
-            hide1=hide1,
-            hide2=hide2,
-            hide3=hide3,
-            ignorecase=ignorecase,
-        )
-        m.merge()
+        for item, column in comm(lines1, lines2, comptrans=comptrans):
+            prints[column](item)
 
 
 def main():
     app = typer.Typer(add_completion=False)
-    app.command()(comm)
+    app.command()(cli)
     app()
