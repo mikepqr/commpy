@@ -30,12 +30,11 @@ def test_ignorecase():
     )
 
 
-@pytest.mark.xfail
 def test_empty():
     assert tuple(comm(list("abc"), [])) == (
         ("a", 1),
         ("b", 1),
-        ("c", 2),
+        ("c", 1),
     )
 
 
