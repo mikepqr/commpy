@@ -39,8 +39,6 @@ def test_empty():
     )
 
 
-# See https://github.com/mikepqr/commpy/issues/3
-@pytest.mark.xfail
 def test_unsorted():
     with pytest.raises(ValueError):
         _ = tuple(comm(list("abc"), list("cdb")))
