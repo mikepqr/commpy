@@ -6,15 +6,30 @@ from typing import Callable, Optional
 import typer
 
 
+def _sorted_iter(seq: Iterable):
+    """
+    Yield items from a sorted sequence
+
+    Raises ValueError if the sequence is found to be unsorted.
+    """
+    it = iter(seq)
+    prev = next(it)
+    yield prev
+    for item in it:
+        if item < prev:
+            raise ValueError("Sequence is not sorted")
+        yield item
+
+
+def _identity(x):
+    return x
+
+
 def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
     if comptrans is None:
-
-        def _identity(x):
-            return x
-
         comptrans = _identity
 
-    it1, it2 = iter(seq1), iter(seq2)
+    it1, it2 = _sorted_iter(seq1), _sorted_iter(seq2)
     d1 = next(it1)
     d2 = next(it2)
 
