@@ -1,12 +1,19 @@
 import itertools
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Callable
+from typing import Callable, Optional
 
 import typer
 
 
-def comm(seq1: Iterable, seq2: Iterable, comptrans: Callable = lambda s: s):
+def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
+    if comptrans is None:
+
+        def _identity(x):
+            return x
+
+        comptrans = _identity
+
     it1, it2 = iter(seq1), iter(seq2)
     d1 = next(it1)
     d2 = next(it2)
@@ -77,7 +84,7 @@ def cli(
 
     prints = {1: printcol1, 2: printcol2, 3: printcol3}
 
-    comptrans = (lambda s: s.lower()) if ignorecase else (lambda s: s)
+    comptrans = (lambda s: s.lower()) if ignorecase else None
 
     with open(file1) as lines1, open(file2) as lines2:
         for item, column in comm(lines1, lines2, comptrans=comptrans):
