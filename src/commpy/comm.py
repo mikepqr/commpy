@@ -26,10 +26,18 @@ def _identity(x):
 
 
 def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
+    it1, it2 = _sorted_iter(seq1), _sorted_iter(seq2)
+
+    if not seq1:
+        yield from zip(it2, itertools.repeat(2))
+        return
+    if not seq2:
+        yield from zip(it1, itertools.repeat(1))
+        return
+
     if comptrans is None:
         comptrans = _identity
 
-    it1, it2 = _sorted_iter(seq1), _sorted_iter(seq2)
     d1 = next(it1)
     d2 = next(it2)
 
