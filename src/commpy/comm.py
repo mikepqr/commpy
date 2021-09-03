@@ -5,6 +5,8 @@ from typing import Callable, Optional
 
 import typer
 
+app = typer.Typer(add_completion=False)
+
 
 def _sorted_iter(seq: Iterable):
     """
@@ -74,6 +76,7 @@ def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
                 break
 
 
+@app.command()
 def cli(
     file1: Path,
     file2: Path,
@@ -117,7 +120,5 @@ def cli(
             prints[column](item)
 
 
-def main():
-    app = typer.Typer(add_completion=False)
-    app.command()(cli)
+if __name__ == "__main__":
     app()
