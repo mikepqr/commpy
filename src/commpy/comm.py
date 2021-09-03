@@ -105,7 +105,7 @@ def cli(
         if hide3:
             return
         elif hide1 and hide2:
-            print(s)
+            print(s, end="")
         elif hide1 or hide2:
             print(f"\t{s}", end="")
         else:
@@ -118,7 +118,3 @@ def cli(
     with open(file1) as lines1, open(file2) as lines2:
         for item, column in comm(lines1, lines2, comptrans=comptrans):
             prints[column](item)
-
-
-if __name__ == "__main__":
-    app()
