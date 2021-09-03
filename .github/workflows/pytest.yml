@@ -1,0 +1,19 @@
+name: pytest
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+    - name: Install package
+      run: pip install .
+    - name: Install pytest
+      run: pip install pytest
+    - name: pytest
+      run: pytest
