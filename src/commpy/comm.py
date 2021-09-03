@@ -1,14 +1,14 @@
 import itertools
 from collections.abc import Iterable
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Generator, Optional, TypeVar
 
 import typer
 
 app = typer.Typer(add_completion=False)
 
 
-def _sorted_iter(seq: Iterable):
+def _sorted_iter(seq: Iterable[str]) -> Generator[str, None, None]:
     """
     Yield items from a sorted sequence
 
@@ -23,11 +23,16 @@ def _sorted_iter(seq: Iterable):
         yield item
 
 
-def _identity(x):
+T = TypeVar("T")
+
+
+def _identity(x: T) -> T:
     return x
 
 
-def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
+def comm(
+    seq1: Iterable[str], seq2: Iterable[str], comptrans: Optional[Callable] = None
+) -> Generator[tuple[str, int], None, None]:
     it1, it2 = _sorted_iter(seq1), _sorted_iter(seq2)
 
     if not seq1:
