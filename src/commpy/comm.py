@@ -53,6 +53,7 @@ def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
             try:
                 d2 = next(it2)
             except StopIteration:
+                yield (d1, 1)
                 yield from zip(it1, itertools.repeat(1))
                 break
         elif d1trans < d2trans:
@@ -60,6 +61,7 @@ def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
             try:
                 d1 = next(it1)
             except StopIteration:
+                yield (d2, 2)
                 yield from zip(it2, itertools.repeat(2))
                 break
         else:
@@ -67,6 +69,7 @@ def comm(seq1: Iterable, seq2: Iterable, comptrans: Optional[Callable] = None):
             try:
                 d2 = next(it2)
             except StopIteration:
+                yield (d1, 1)
                 yield from zip(it1, itertools.repeat(1))
                 break
 
