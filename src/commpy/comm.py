@@ -1,7 +1,7 @@
 import itertools
-from collections.abc import Generator, Iterable
+from collections.abc import Callable, Generator, Iterable
 from pathlib import Path
-from typing import Callable, Optional, TypeVar
+from typing import TypeVar
 
 import typer
 
@@ -31,7 +31,7 @@ def _identity(x: T) -> T:
 
 
 def comm(
-    seq1: Iterable[str], seq2: Iterable[str], comptrans: Optional[Callable] = None
+    seq1: Iterable[str], seq2: Iterable[str], comptrans: Callable | None = None
 ) -> Generator[tuple[str, int], None, None]:
     it1, it2 = _sorted_iter(seq1), _sorted_iter(seq2)
 
