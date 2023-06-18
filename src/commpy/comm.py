@@ -1,7 +1,7 @@
 import itertools
-from collections.abc import Iterable
+from collections.abc import Generator, Iterable
 from pathlib import Path
-from typing import Callable, Generator, Optional, TypeVar
+from typing import Callable, Optional, TypeVar
 
 import typer
 
